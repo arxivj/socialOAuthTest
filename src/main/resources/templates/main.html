@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<a href="https://kauth.kakao.com/oauth/authorize?client_id=ac8fe049ee6f6daabf4f2c47b6565538&redirect_uri=http://localhost:8080/oauth/kakao&response_type=code"
+   onclick="window.open(this.href, '_blank', 'width=600,height=800, top=100, left=700, scrollbars=yes, resizable=yes'); return false;">
+    <img th:src="@{/images/kakao.png}" alt="kakao login button">
+</a>
+<br>
+<button id="googleLogin">Google 로그인</button>
+<br>
+<input type="text" id="emailInput" placeholder="이메일을 입력하세요">
+<button onclick="getToken()" id="tokenButton">토큰 받기</button>
+<script type="text/javascript">
+    const getToken = function () {
+        const email = document.getElementById("emailInput").value;
+        if (!email) {
+            console.error('이메일을 입력해주세요.');
+            return;
+        }
+        fetch(`http://localhost:8080/tokenCreate/${email}?email=${email}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('네트워크 응답이 실패했습니다.');
+            }
+        }).then(data => {
+            console.log(data);
+            if (data.data.token) {
+                const token = data.data.token;
+                localStorage.setItem('token', token);
+                console.log(localStorage.getItem('token'));
+            } else {
+                throw new Error('토큰 데이터가 없습니다.');
+            }
+        }).catch(error => {
+            console.error('에러:', error);
+        });
+    }
+</script>
+
+<!-- 구글 -->
+<script>
+    document.getElementById('googleLogin').addEventListener('click', function() {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/api/v1/oauth2/google');
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    // 성공적으로 요청을 처리한 경우에 대한 로직을 추가하세요.
+                    window.open(xhr.responseText, '_blank', 'width=600,height=800, top=100, left=700, scrollbars=yes, resizable=yes');
+                } else {
+                    // 요청이 실패한 경우에 대한 로직을 추가하세요.
+                    console.error('요청 실패:', xhr.status);
+                }
+            }
+        };
+        xhr.send();
+    });
+</script>
+
+</body>
+</html>
+
+<!--getToken 함수는 클릭 이벤트가 발생했을 때 호출됩니다.-->
+<!--document.getElementById("emailInput").value를 사용하여 HTML에서 이메일 입력 필드의 값을 가져옵니다.-->
+<!--if (!email) 구문은 이메일 값이 비어있는지 확인합니다. 비어있을 경우, 콘솔에 에러 메시지를 출력하고 함수 실행을 중지합니다.-->
+<!--이메일 값이 존재하는 경우, fetch 함수를 사용하여 서버에 GET 요청을 보냅니다. 이때, 이메일 값은 URL 경로와 쿼리 매개변수로 전달됩니다.-->
+<!--응답이 성공적으로 받아지면, response.ok를 확인하여 응답 상태를 검사합니다. response.ok가 true인 경우, response.json()을 호출하여 응답 데이터를 JSON 형식으로 변환합니다.-->
+<!--다음 then 블록에서는 받아온 데이터를 검사합니다. data && data.data && data.data.token을 사용하여 데이터 객체와 token 속성이 존재하는지 확인합니다.-->
+<!--데이터와 token이 존재하는 경우, 토큰 값을 localStorage에 저장합니다. localStorage.setItem('token', token)을 사용하여 토큰을 저장하고, localStorage.getItem('token')을 사용하여 저장된 토큰을 콘솔에 출력합니다.-->
+<!--데이터나 token이 존재하지 않는 경우, 에러를 throw하여 에러 메시지를 콘솔에 출력합니다.-->
+<!--catch 블록은 fetch 요청 또는 이전 then 블록에서 발생한 에러를 처리합니다. 에러가 발생한 경우, 에러 메시지를 콘솔에 출력합니다.-->
+<!--이렇게 구성된 코드는 이메일 값을 서버로 전송하여 토큰을 받아오고, 받아온 토큰을 localStorage에 저장하는 역할을 합니다.-->
