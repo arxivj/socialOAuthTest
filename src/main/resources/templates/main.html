@@ -8,12 +8,44 @@
 <a href="https://kauth.kakao.com/oauth/authorize?client_id=ac8fe049ee6f6daabf4f2c47b6565538&redirect_uri=http://localhost:8080/oauth/kakao&response_type=code"
    onclick="window.open(this.href, '_blank', 'width=600,height=800, top=100, left=700, scrollbars=yes, resizable=yes'); return false;">
     <img th:src="@{/images/kakao.png}" alt="kakao login button">
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css"/>
 </a>
 <br>
 <button id="googleLogin">Google 로그인</button>
+<button id="openbanking">오픈뱅킹 로그인</button>
 <br>
-<input type="text" id="emailInput" placeholder="이메일을 입력하세요">
+<input type="text" id="emailInput" placeholder="이메일을 입력하세요2">
 <button onclick="getToken()" id="tokenButton">토큰 받기</button>
+
+
+<br>
+<div id="editor"></div>
+<br>
+
+
+<!-- toastui-->
+
+<script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+<script>
+    const Editor = toastui.Editor;
+    const editor = new Editor({
+        el: document.querySelector('#editor'),
+        height: '600px',
+        toolbarItems: [
+            ['heading', 'bold', 'italic', 'strike', 'hr'],
+            ['ul', 'ol', 'task'],
+            ['table', 'image', 'link'],
+            ['code', 'codeblock'],
+            ['scrollSync'],
+        ],
+        initialEditType: 'wysiwyg',
+        previewStyle: 'tab'
+    });
+</script>
+
+
+<!-- 토큰 -->
+
 <script type="text/javascript">
     const getToken = function () {
         const email = document.getElementById("emailInput").value;
@@ -21,7 +53,7 @@
             console.error('이메일을 입력해주세요.');
             return;
         }
-        fetch(`http://localhost:8080/tokenCreate/${email}?email=${email}`, {
+        fetch(`http://localhost/tokenCreate2/${email}?email=${email}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -35,7 +67,7 @@
         }).then(data => {
             console.log(data);
             if (data.data.token) {
-                const token = data.data.token;
+                const token = data.headers.token;
                 localStorage.setItem('token', token);
                 console.log(localStorage.getItem('token'));
             } else {
@@ -60,6 +92,25 @@
                     window.open(xhr.responseText, '_blank', 'width=600,height=800, top=100, left=700, scrollbars=yes, resizable=yes');
                 } else {
                     // 요청이 실패한 경우에 대한 로직을 추가하세요.
+                    console.error('요청 실패:', xhr.status);
+                }
+            }
+        };
+        xhr.send();
+    });
+</script>
+
+
+<script>
+    document.getElementById('openbanking').addEventListener('click', function() {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/openbanking');
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    window.open(xhr.responseText, '_blank', 'width=600,height=800, top=100, left=700, scrollbars=yes, resizable=yes');
+                } else {
                     console.error('요청 실패:', xhr.status);
                 }
             }

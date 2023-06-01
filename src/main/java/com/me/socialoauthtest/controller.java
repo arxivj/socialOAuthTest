@@ -89,7 +89,8 @@ public class controller {
                 "https://kapi.kakao.com/v2/user/me",  // 토큰발급주소
                 HttpMethod.POST,
                 kakaoProfileRequest2,
-                String.class);
+                String.class); // String.class는 String 자체를 가리킨다.
+        // ex
 
 
         ObjectMapper objectMapper2 = new ObjectMapper();
